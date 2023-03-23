@@ -11,6 +11,8 @@ import {
   MeshBuilder,
 } from "@babylonjs/core"
 
+import * as Tone from 'tone'
+
 class App {
     constructor() {
         const canvas = document.createElement("canvas")
@@ -35,6 +37,24 @@ class App {
                     scene.debugLayer.show()
                 }
             }
+        })
+
+        const audioCtx = new AudioContext()
+        const gainNode = new GainNode(audioCtx)
+        const oscillator = audioCtx.createOscillator()
+        
+        oscillator.type = "triangle"
+        oscillator.frequency.setValueAtTime(440, audioCtx.currentTime)
+        gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime)
+        oscillator.connect(gainNode)
+        gainNode.connect(audioCtx.destination)
+        oscillator.start()
+
+        window.addEventListener('click', event => {
+            if (audioCtx.state === 'suspended')
+                audioCtx.resume()
+            else
+                audioCtx.suspend()
         })
 
         engine.runRenderLoop(() => {
